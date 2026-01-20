@@ -15,10 +15,8 @@ export default async function AdminDashboardPage() {
 
     // Verify Admin Access
     const { data: { user }, error: authError } = await supabase.auth.getUser();
-    console.log("Admin Page Auth Check:", { user: user?.email, error: authError });
 
     if (!user) {
-        console.log("Admin Page: No user found, redirecting to login");
         redirect('/login');
     }
 
@@ -39,7 +37,6 @@ export default async function AdminDashboardPage() {
 
     // Self-healing: If email is admin but role/status is not, fix it.
     if (isEmailAdmin && (profileData?.role !== 'admin' || profileData?.status !== 'approved')) {
-        console.log("Self-healing admin role for:", user.email);
         await supabaseAdmin.from('profiles').update({
             role: 'admin',
             status: 'approved'

@@ -92,7 +92,6 @@ export default function FeedPage() {
         const { data: postsData, error, count } = await query;
 
         if (error) {
-            console.error(error);
             setLoading(false);
             return;
         }

@@ -28,7 +28,6 @@ export function TopNavbar({ userId }: TopNavbarProps) {
             // Priority Check: Master Email (Bypasses DB delays)
             const { data: { user } } = await supabase.auth.getUser();
             if (user?.email === 'mayankbohara0@gmail.com') {
-                console.log("Master Admin Detected: Access Granted");
                 setIsAdmin(true);
                 return;
             }
@@ -61,7 +60,6 @@ export function TopNavbar({ userId }: TopNavbarProps) {
         const channel = supabase
             .channel('public:notices')
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notices' }, (payload) => {
-                console.log('New Notice!', payload);
                 const newNotice = payload.new as any;
 
                 // Add to list
@@ -95,6 +93,12 @@ export function TopNavbar({ userId }: TopNavbarProps) {
         }
     };
 
+    const navItems = [
+        { href: '/feed', icon: LayoutGrid, label: 'Feed', mobileLabel: 'Feed' },
+        { href: '/resources', icon: FileText, label: 'Resources', mobileLabel: 'Res...' },
+        ...(isAdmin ? [{ href: '/admin', icon: ShieldCheck, label: 'Dashboard', mobileLabel: 'Dashboard' }] : [])
+    ];
+
     return (
         <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/40 mb-8">
             <div className="max-w-7xl mx-auto px-6 h-16 md:h-20 flex items-center justify-between">
@@ -107,43 +111,22 @@ export function TopNavbar({ userId }: TopNavbarProps) {
                     <span className="text-lg md:text-xl font-bold font-heading text-primary tracking-tight">SNJB Connect</span>
                 </Link>
 
-                {/* Nav Links (Visible on Mobile too since only 2 items) */}
+                {/* Nav Links */}
                 <div className="flex items-center gap-2 md:gap-6 text-sm font-medium">
-                    <Link
-                        href="/feed"
-                        className={`flex items-center gap-2 px-3 py-2 md:px-4 md:py-2 rounded-full transition-colors ${isActive('/feed')
-                            ? 'bg-primary text-white shadow-md shadow-primary/20'
-                            : 'text-muted hover:text-foreground hover:bg-surface'
-                            }`}
-                    >
-                        <LayoutGrid size={18} />
-                        <span className="hidden md:inline">Feed</span>
-                    </Link>
-
-                    <Link
-                        href="/resources"
-                        className={`flex items-center gap-2 px-3 py-2 md:px-4 md:py-2 rounded-full transition-colors ${isActive('/resources')
-                            ? 'bg-primary text-white shadow-md shadow-primary/20'
-                            : 'text-muted hover:text-foreground hover:bg-surface'
-                            }`}
-                    >
-                        <FileText size={18} />
-                        <span className="hidden md:inline">Resources</span>
-                        <span className="md:hidden">Res...</span>
-                    </Link>
-
-                    {isAdmin && (
+                    {navItems.map((item) => (
                         <Link
-                            href="/admin"
-                            className={`flex items-center gap-2 px-3 py-2 md:px-4 md:py-2 rounded-full transition-colors ${isActive('/admin')
+                            key={item.href}
+                            href={item.href}
+                            className={`flex items-center gap-2 px-3 py-2 md:px-4 md:py-2 rounded-full transition-colors ${isActive(item.href)
                                 ? 'bg-primary text-white shadow-md shadow-primary/20'
                                 : 'text-muted hover:text-foreground hover:bg-surface'
                                 }`}
                         >
-                            <ShieldCheck size={18} />
-                            <span className="hidden md:inline">Dashboard</span>
+                            <item.icon size={18} />
+                            <span className="hidden md:inline">{item.label}</span>
+                            {item.mobileLabel !== item.label && <span className="md:hidden">{item.mobileLabel}</span>}
                         </Link>
-                    )}
+                    ))}
                 </div>
 
                 <div className="flex items-center gap-4">
@@ -192,20 +175,15 @@ export function TopNavbar({ userId }: TopNavbarProps) {
                         )}
                     </div>
 
-                    {/* User Profile (Desktop Only - Mobile can be simplified) */}
-                    {userId ? (
-                        <div className="hidden md:flex items-center gap-4">
-                            <div className="text-sm font-medium text-muted">Welcome</div>
-                            <Link href="/profile" className="w-9 h-9 rounded-full bg-surface border border-border flex items-center justify-center overflow-hidden hover:ring-2 hover:ring-primary/20 transition-all">
-                                <img src={getAvatarUrl(userId)} alt="Profile" className="w-full h-full object-cover" />
-                            </Link>
-                        </div>
-                    ) : (
-                        /* Mobile User Profile Icon */
-                        <Link href="/profile" className="md:hidden w-8 h-8 rounded-full bg-surface border border-border overflow-hidden">
+                    {/* User Profile */}
+                    <Link href="/profile" className={`${!userId ? 'md:hidden' : 'flex'} items-center gap-4`}>
+                        {/* Desktop Welcome Text */}
+                        {userId && <div className="hidden md:block text-sm font-medium text-muted">Welcome</div>}
+
+                        <div className={`rounded-full bg-surface border border-border flex items-center justify-center overflow-hidden hover:ring-2 hover:ring-primary/20 transition-all ${userId ? 'w-9 h-9' : 'w-8 h-8'}`}>
                             <img src={getAvatarUrl(userId || '')} alt="Profile" className="w-full h-full object-cover" />
-                        </Link>
-                    )}
+                        </div>
+                    </Link>
                 </div>
             </div>
 

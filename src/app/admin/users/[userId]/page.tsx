@@ -9,8 +9,6 @@ import { getAvatarUrl } from '@/lib/utils';
 
 export default async function UserDetailsPage(props: { params: Promise<{ userId: string }> }) {
     const params = await props.params;
-    console.log("Admin User Details Page Loaded");
-    console.log("UserID:", params.userId);
 
     const supabase = await createServerClient();
     const { data: { user } } = await supabase.auth.getUser();
