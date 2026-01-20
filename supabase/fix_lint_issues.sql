@@ -1,9 +1,9 @@
 -- Fix Function Search Paths (Security Best Practice)
 -- Setting search_path prevents malicious code from overriding standard functions if a user can create objects in public schema.
 
-ALTER FUNCTION public.handle_new_vote(uuid, uuid) SET search_path = public, pg_temp;
-ALTER FUNCTION public.handle_new_like(uuid, uuid) SET search_path = public, pg_temp;
-ALTER FUNCTION public.handle_remove_like(uuid, uuid) SET search_path = public, pg_temp;
+ALTER FUNCTION public.handle_new_vote() SET search_path = public, pg_temp;
+ALTER FUNCTION public.handle_new_like() SET search_path = public, pg_temp;
+ALTER FUNCTION public.handle_remove_like() SET search_path = public, pg_temp;
 ALTER FUNCTION public.generate_random_alias() SET search_path = public, pg_temp;
 ALTER FUNCTION public.auto_assign_alias() SET search_path = public, pg_temp;
 
